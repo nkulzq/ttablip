@@ -8,9 +8,9 @@ from PIL import Image
 
 from data.utils import pre_caption
 
-class roco_caption_train(Dataset):
+class  roco_caption_train(Dataset):
     def __init__(self, transform, image_root, ann_root, max_words=30, prompt=''):        
-        filename = 'roco_train.json'
+        filename = 'ann_train.json'
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
         self.transform = transform
         self.image_root = image_root
@@ -36,7 +36,7 @@ class roco_caption_train(Dataset):
     
 class roco_caption_eval(Dataset):
     def __init__(self, transform, image_root, ann_root, split):  
-        filenames = {'val':'roco_val.json','test':'roco_test.json'}        
+        filenames = {'val':'ann_validation.json','test':'ann_test.json'}        
         self.annotation = json.load(open(os.path.join(ann_root,filenames[split]),'r'))
         self.transform = transform
         self.image_root = image_root
