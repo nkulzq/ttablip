@@ -142,8 +142,8 @@ def main(args, config):
         test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
 
         if utils.is_main_process():   
-            coco_val = coco_caption_eval(config['coco_gt_root'],val_result_file,'val')
-            coco_test = coco_caption_eval(config['coco_gt_root'],test_result_file,'test')
+            coco_val = coco_caption_eval(config['ann_root'],val_result_file,'val')
+            coco_test = coco_caption_eval(config['ann_root'],test_result_file,'test')
             
             if args.evaluate:            
                 log_stats = {**{f'val_{k}': v for k, v in coco_val.eval.items()},
@@ -184,8 +184,8 @@ def main(args, config):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', default='./configs/caption_coco.yaml')
-    parser.add_argument('--output_dir', default='output/Caption_coco')        
+    parser.add_argument('--config', default='./configs/caption_roco.yaml')
+    parser.add_argument('--output_dir', default='output/Caption_roco')        
     parser.add_argument('--evaluate', action='store_true')    
     parser.add_argument('--device', default='cuda')
     parser.add_argument('--seed', default=42, type=int)

@@ -81,32 +81,43 @@ from pycocotools.coco import COCO
 from pycocoevalcap.eval import COCOEvalCap
 from torchvision.datasets.utils import download_url
 
-def coco_caption_eval(coco_gt_root, results_file, split):
-    urls = {'val':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_val_gt.json',
-            'test':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_test_gt.json'}
-    filenames = {'val':'coco_karpathy_val_gt.json','test':'coco_karpathy_test_gt.json'}    
+class Scorer():
+    def __init__(self, ref, gt):
+        self.ref = ref
+        self.gt = gt
+        print('setting up scorers...')
+        self.scorers = [
+            (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
+            (Meteor(), "METEOR"),
+            (Rouge(), "ROUGE_L"),
+            (Cider(), "CIDEr"),
+            (Spice(), "SPICE"),
+        ]
+
+    def compute_scores(self):
+        total_scores = {}
+        for scorer, method in self.scorers:
+            print('computing %s score...' % (scorer.method()))
+            score, scores = scorer.compute_score(self.gt, self.ref)
+            if type(method) == list:
+                for sc, scs, m in zip(score, scores, method):
+                    print("%s: %0.3f" % (m, sc))
+                total_scores["Bleu"] = score
+            else:
+                print("%s: %0.3f" % (method, score))
+                total_scores[method] = score
+
+        print('*****DONE*****')
+        for key, value in total_scores.items():
+            print('{}:{}'.format(key, value))
+
+def coco_caption_eval(ann_root, results_file, split):
+    filenames = {'val':'roco_val.json','test':'roco_test.json'}    
+    annotation_file = os.path.join(ann_root,filenames[split])
     
-    download_url(urls[split],coco_gt_root)
-    annotation_file = os.path.join(coco_gt_root,filenames[split])
-    
-    # create coco object and coco_result object
-    coco = COCO(annotation_file)
-    coco_result = coco.loadRes(results_file)
+    ref_json = json.load(open(results_file, 'r'))
+    ref = {item['image_id']: [item['caption']] for item in ref_json}
+    gt = {item['image'].split('/')[-1].strip('.jpg').split('_')[-1]: [item['caption']] for item in annotation_file}
 
-    # create coco_eval object by taking coco and coco_result
-    coco_eval = COCOEvalCap(coco, coco_result)
-
-    # evaluate on a subset of images by setting
-    # coco_eval.params['image_id'] = coco_result.getImgIds()
-    # please remove this line when evaluating the full validation set
-    # coco_eval.params['image_id'] = coco_result.getImgIds()
-
-    # evaluate results
-    # SPICE will take a few minutes the first time, but speeds up due to caching
-    coco_eval.evaluate()
-
-    # print output evaluation scores
-    for metric, score in coco_eval.eval.items():
-        print(f'{metric}: {score:.3f}')
-    
-    return coco_eval
+    roco_eval = Scorer(ref, gt)
+    return roco_eval.compute_scores
