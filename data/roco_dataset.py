@@ -11,7 +11,16 @@ from data.utils import pre_caption
 class  roco_caption_train(Dataset):
     def __init__(self, transform, image_root, ann_root, max_words=30, prompt=''):        
         filename = 'ann_train.json'
-        self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
+        ann_ori = json.load(open(os.path.join(ann_root,filename),'r'))
+        anns = []
+        for ann in ann_ori:
+            image_path = os.path.join(image_root,ann['image'])
+            try:   
+                image = Image.open(image_path).convert('RGB')
+                anns.append(ann)
+            except:
+                print(ann['image'])
+        self.annotation = anns
         self.transform = transform
         self.image_root = image_root
         self.max_words = max_words      
@@ -37,7 +46,16 @@ class  roco_caption_train(Dataset):
 class roco_caption_eval(Dataset):
     def __init__(self, transform, image_root, ann_root, split):  
         filenames = {'val':'ann_validation.json','test':'ann_test.json'}        
-        self.annotation = json.load(open(os.path.join(ann_root,filenames[split]),'r'))
+        ann_ori = json.load(open(os.path.join(ann_root,filenames[split]),'r'))
+        anns = []
+        for ann in ann_ori:
+            image_path = os.path.join(image_root,ann['image'])
+            try:       
+                image = Image.open(image_path).convert('RGB')
+                anns.append(ann)
+            except:
+                print(ann['image'])
+        self.annotation = anns
         self.transform = transform
         self.image_root = image_root
         
