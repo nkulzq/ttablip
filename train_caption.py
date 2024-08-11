@@ -146,8 +146,8 @@ def main(args, config):
             coco_test = coco_caption_eval(config['ann_root'],test_result_file,'test')
             
             if args.evaluate:            
-                log_stats = {**{f'val_{k}': v for k, v in coco_val.eval.items()},
-                             **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
+                log_stats = {**{f'val_{k}': v for k, v in coco_val.items()},
+                             **{f'test_{k}': v for k, v in coco_test.items()},                       
                             }
                 with open(os.path.join(args.output_dir, "evaluate.txt"),"a") as f:
                     f.write(json.dumps(log_stats) + "\n")                   
@@ -159,14 +159,14 @@ def main(args, config):
                     'epoch': epoch,
                 }
 
-                if coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4'] > best:
-                    best = coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4']
+                if coco_val['CIDEr'] + coco_val['Bleu'][3] > best:
+                    best = coco_val['CIDEr'] + coco_val['Bleu'][3]
                     best_epoch = epoch                
                     torch.save(save_obj, os.path.join(args.output_dir, 'checkpoint_best.pth')) 
                     
                 log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
-                             **{f'val_{k}': v for k, v in coco_val.eval.items()},
-                             **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
+                             **{f'val_{k}': v for k, v in coco_val.items()},
+                             **{f'test_{k}': v for k, v in coco_test.items()},                       
                              'epoch': epoch,
                              'best_epoch': best_epoch,
                             }

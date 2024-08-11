@@ -80,6 +80,12 @@ def save_result(result, result_dir, filename, remove_duplicate=''):
 from pycocotools.coco import COCO
 from pycocoevalcap.eval import COCOEvalCap
 from torchvision.datasets.utils import download_url
+from pycocoevalcap.bleu.bleu import Bleu
+from pycocoevalcap.meteor.meteor import Meteor
+from pycocoevalcap.rouge.rouge import Rouge
+from pycocoevalcap.cider.cider import Cider
+from pycocoevalcap.spice.spice import Spice
+
 
 class Scorer():
     def __init__(self, ref, gt):
@@ -110,14 +116,16 @@ class Scorer():
         print('*****DONE*****')
         for key, value in total_scores.items():
             print('{}:{}'.format(key, value))
+        return total_scores
 
 def coco_caption_eval(ann_root, results_file, split):
-    filenames = {'val':'roco_val.json','test':'roco_test.json'}    
-    annotation_file = os.path.join(ann_root,filenames[split])
+    filenames = {'val':'ann_validation.json','test':'ann_test.json'}    
+    annotation_file = json.load(open(os.path.join(ann_root,filenames[split]), 'r'))
     
     ref_json = json.load(open(results_file, 'r'))
     ref = {item['image_id']: [item['caption']] for item in ref_json}
-    gt = {item['image'].split('/')[-1].strip('.jpg').split('_')[-1]: [item['caption']] for item in annotation_file}
+    gt = {int(item['image'].split('/')[-1].strip('.jpg').split('_')[-1]): [item['caption']] for item in annotation_file}
 
     roco_eval = Scorer(ref, gt)
-    return roco_eval.compute_scores
+    result = roco_eval.compute_scores()
+    return result
