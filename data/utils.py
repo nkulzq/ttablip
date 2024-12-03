@@ -120,15 +120,23 @@ class Scorer():
 def coco_caption_eval(ann_root, results_file, split):
     filenames = {'val':'ann_validation.json','test':'ann_test.json'}    
     annotation_file = json.load(open(os.path.join(ann_root,filenames[split]), 'r'))
+<<<<<<< HEAD
+=======
+    
+>>>>>>> dc5a435b84dfa530f33d208a8e72cec809dc42ed
     ref_json = json.load(open(results_file, 'r'))
     ref = {item['image_id']: [item['caption']] for item in ref_json}
     gt = {int(item['image'].split('/')[-1].strip('.jpg').split('_')[-1]): [item['caption']] for item in annotation_file}
 
     roco_eval = Scorer(ref, gt)
     result = roco_eval.compute_scores()
+<<<<<<< HEAD
     return result
 
 def score_eval(ref, gt):
     roco_eval = Scorer(ref, gt)
     result = roco_eval.compute_scores()
     return result
+=======
+    return result
+>>>>>>> dc5a435b84dfa530f33d208a8e72cec809dc42ed

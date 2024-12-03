@@ -159,6 +159,7 @@ def main(args, config):
                     'epoch': epoch,
                 }
 
+<<<<<<< HEAD
                 torch.save(save_obj, os.path.join(args.output_dir, 'checkpoint_{}.pth'.format(epoch))) 
                 # if coco_val['CIDEr'] + coco_val['Bleu'][3] > best:
                 #     best = coco_val['CIDEr'] + coco_val['Bleu'][3]
@@ -168,6 +169,16 @@ def main(args, config):
                 log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                 #              **{f'val_{k}': v for k, v in coco_val.items()},
                 #              **{f'test_{k}': v for k, v in coco_test.items()},                       
+=======
+                if coco_val['CIDEr'] + coco_val['Bleu'][3] > best:
+                    best = coco_val['CIDEr'] + coco_val['Bleu'][3]
+                    best_epoch = epoch                
+                    torch.save(save_obj, os.path.join(args.output_dir, 'checkpoint_best.pth')) 
+                    
+                log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
+                             **{f'val_{k}': v for k, v in coco_val.items()},
+                             **{f'test_{k}': v for k, v in coco_test.items()},                       
+>>>>>>> dc5a435b84dfa530f33d208a8e72cec809dc42ed
                              'epoch': epoch,
                 #              'best_epoch': best_epoch,
                             }
