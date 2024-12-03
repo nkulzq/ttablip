@@ -1,5 +1,5 @@
-image_root: '/home/wuyinjun/lzq/roco'
-ann_root: '/home/wuyinjun/lzq/roco'
+image_root: '/home/wuyinjun/lzq/MediCaT/release/figures'
+ann_root: '/home/wuyinjun/lzq/MediCaT/release'
 
 # set pretrained as a file path or an url
 pretrained: 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_caption_capfilt_large.pth'

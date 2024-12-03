@@ -796,7 +796,7 @@ class BertModel(BertPreTrainedModel):
 
         if not return_dict:
             return (sequence_output, pooled_output) + encoder_outputs[1:]
-
+        
         return BaseModelOutputWithPoolingAndCrossAttentions(
             last_hidden_state=sequence_output,
             pooler_output=pooled_output,
@@ -899,7 +899,7 @@ class BertLMHeadModel(BertPreTrainedModel):
             is_decoder=is_decoder,
             mode=mode,
         )
-        
+       
         sequence_output = outputs[0]
         prediction_scores = self.cls(sequence_output)
         

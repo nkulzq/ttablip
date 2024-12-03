@@ -26,7 +26,8 @@ class BLIP_Base(nn.Module):
                  image_size = 224,
                  vit = 'base',
                  vit_grad_ckpt = False,
-                 vit_ckpt_layer = 0,                 
+                 vit_ckpt_layer = 0,                
+                 prompt="a picture of"
                  ):
         """
         Args:
@@ -41,6 +42,8 @@ class BLIP_Base(nn.Module):
         med_config = BertConfig.from_json_file(med_config)
         med_config.encoder_width = vision_width
         self.text_encoder = BertModel(config=med_config, add_pooling_layer=False)  
+        self.prompt = prompt
+        self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-1
 
         
     def forward(self, image, caption, mode):
@@ -66,11 +69,7 @@ class BLIP_Base(nn.Module):
             
             text.input_ids[:,0] = self.tokenizer.enc_token_id
             output = self.text_encoder(text.input_ids,
-                                       attention_mask = text.attention_mask,
-                                       encoder_hidden_states = image_embeds,
-                                       encoder_attention_mask = image_atts,      
-                                       return_dict = True,
-                                      )              
+                                       attention_m5) 
             return output.last_hidden_state
         
         
@@ -93,7 +92,7 @@ class BLIP_Decoder(nn.Module):
         super().__init__()
         
         self.visual_encoder, vision_width = create_vit(vit,image_size, vit_grad_ckpt, vit_ckpt_layer)
-        self.tokenizer = init_tokenizer()   
+        self.tokenizer = init_tokenizer()
         med_config = BertConfig.from_json_file(med_config)
         med_config.encoder_width = vision_width
         self.text_decoder = BertLMHeadModel(config=med_config)    
@@ -120,11 +119,19 @@ class BLIP_Decoder(nn.Module):
                                            encoder_attention_mask = image_atts,                  
                                            labels = decoder_targets,
                                            return_dict = True,   
-                                          )   
+                                          )
         loss_lm = decoder_output.loss
         
         return loss_lm
-        
+    
+    def get_image_embed(self, image):
+        return self.visual_encoder.get_cls(image)
+
+    def get_caption_embed(self, captions, device):
+        text = self.tokenizer(captions, padding='longest', truncation=True, max_length=40, return_tensors="pt").to(device)
+        embeddings = self.text_decoder.bert(text.input_ids, attention_mask=text.attention_mask, return_dict=True, mode='text').last_hidden_state[:,0,:]
+        return embeddings
+    
     def generate(self, image, sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
         image_embeds = self.visual_encoder(image)
 
@@ -161,10 +168,9 @@ class BLIP_Decoder(nn.Module):
                                                   pad_token_id=self.tokenizer.pad_token_id,     
                                                   repetition_penalty=repetition_penalty,
                                                   **model_kwargs)            
-            
-        captions = []    
+        captions = []
         for output in outputs:
-            caption = self.tokenizer.decode(output, skip_special_tokens=True)    
+            caption = self.tokenizer.decode(output, skip_special_tokens=True)
             captions.append(caption[len(self.prompt):])
         return captions
     

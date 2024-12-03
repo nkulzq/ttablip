@@ -192,6 +192,22 @@ class VisionTransformer(nn.Module):
         x = self.norm(x)
         
         return x
+    
+    def get_cls(self, x, register_blk=-1):
+        B = x.shape[0]
+        x = self.patch_embed(x)
+
+        cls_tokens = self.cls_token.expand(B, -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
+        x = torch.cat((cls_tokens, x), dim=1)
+  
+        x = x + self.pos_embed[:,:x.size(1),:]
+        x = self.pos_drop(x)
+
+        for i,blk in enumerate(self.blocks):
+            x = blk(x, register_blk==i)
+        x = self.norm(x)
+        
+        return x[:,0,:]
 
     @torch.jit.ignore()
     def load_pretrained(self, checkpoint_path, prefix=''):

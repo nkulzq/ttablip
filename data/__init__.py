@@ -11,6 +11,7 @@ from data.vqa_dataset import vqa_dataset
 from data.nlvr_dataset import nlvr_dataset
 from data.pretrain_dataset import pretrain_dataset
 from transform.randaugment import RandomAugment
+from data.medicat_dataset import medicat_caption_train, medicat_caption_eval
 
 def create_dataset(dataset, config, min_scale=0.5):
     
@@ -30,8 +31,18 @@ def create_dataset(dataset, config, min_scale=0.5):
         normalize,
         ])  
 
+    if dataset=='caption_medicat':
+        train_dataset = medicat_caption_train(transform_train, config['image_root'], config['ann_root'])
+        val_dataset = medicat_caption_eval(transform_test, config['image_root'], config['ann_root'], 'val')
+        test_dataset = medicat_caption_eval(transform_test, config['image_root'], config['ann_root'], 'test')
+        return train_dataset, val_dataset, test_dataset
+        
+    if dataset=='roco_val':
+        val_dataset = roco_caption_eval(transform_test, config['image_root'], config['ann_root'], 'val')
+        return val_dataset
+    
     if dataset=='caption_roco':
-        train_dataset = roco_caption_train(transform_train, config['image_root'], config['ann_root'], prompt=config['prompt'])
+        train_dataset = roco_caption_train(transform_train, config['image_root'], config['ann_root'])
         val_dataset = roco_caption_eval(transform_test, config['image_root'], config['ann_root'], 'val')
         test_dataset = roco_caption_eval(transform_test, config['image_root'], config['ann_root'], 'test')   
         return train_dataset, val_dataset, test_dataset
