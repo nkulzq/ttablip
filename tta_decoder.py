@@ -54,7 +54,7 @@ def train(model, data_loader, optimizer, epoch, device, config):
         
         # for caption, img_id in zip(captions, image_id):
         #     if '[unused0]' in caption:
-        #         raise ValueError("Error: The token '[unused0]' was found in the caption, interrupting the process.")
+        #         raise ValueError("Error: The token '[unused0]' was found in the caption, interrupt the process.")
         #     results.append({"image_id": img_id.item(), "caption": caption})
 
     # gather the stats from all processes
@@ -144,7 +144,6 @@ def main(args, config):
             cosine_lr_schedule(optimizer, epoch, config['max_epoch'], config['init_lr'], config['min_lr'])
             
         train_stats = train(model_without_ddp, train_loader, optimizer, epoch, device, config)
-        # json.dump(val_results, open("./opt_results.json", 'w'))
         
         val_result = evaluate(model_without_ddp, val_loader, device, config)
         val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')

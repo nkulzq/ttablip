@@ -65,6 +65,12 @@ NLVR2 | <a href="https://storage.googleapis.com/sfr-vision-language-research/BLI
 4. To finetune the pre-trained checkpoint using 8 A100 GPUs, first set 'pretrained' in configs/caption_coco.yaml as "https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_capfilt_large.pth". Then run:
 <pre>python -m torch.distributed.run --nproc_per_node=8 train_caption.py </pre> 
 
+### Image Caption TTA
+1. Download ROCO datasets from the original websites, and set 'image_root' and 'ann_root' in configs/caption_roco.yaml and accordingly.
+2. install silhouette score calculation from "https://github.com/maxschelski/pytorch-cluster-metrics"
+3. To train the BLIP model with TTA on ROCO with:
+<pre>python -m torch.distributed.run --nproc_per_node=2 tta_decoder.py </pre>
+
 ### VQA:
 1. Download VQA v2 dataset and Visual Genome dataset from the original websites, and set 'vqa_root' and 'vg_root' in configs/vqa.yaml.
 2. To evaluate the finetuned BLIP model, generate results with: (evaluation needs to be performed on official server)
