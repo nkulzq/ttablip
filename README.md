@@ -66,7 +66,7 @@ NLVR2 | <a href="https://storage.googleapis.com/sfr-vision-language-research/BLI
 <pre>python -m torch.distributed.run --nproc_per_node=8 train_caption.py </pre> 
 
 ### Image Caption TTA
-1. Download ROCO datasets from the original websites, and set 'image_root' and 'ann_root' in configs/caption_roco.yaml and accordingly.
+1. Download ROCO datasets from the original websites, and set 'image_root' and 'ann_root' in configs/caption_roco.yaml.
 2. install silhouette score calculation from "https://github.com/maxschelski/pytorch-cluster-metrics"
 3. To train the BLIP model with TTA on ROCO with:
 <pre>python -m torch.distributed.run --nproc_per_node=2 tta_decoder.py </pre>
